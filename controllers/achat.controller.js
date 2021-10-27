@@ -4,25 +4,24 @@ var fs = require('fs');
 // save on db
 function save(req, res) {
   console.log(req);
-  const reqProduct = JSON.parse(req.body);
+  const reqAchat = req.body;
   // console.log(req);
   const post = {
-    titre: reqProduct.titre,
-    contenu: reqProduct.contenu,
-    image_url: reqProduct.file.path,
-    userId: reqProduct.userId,
+    userId: reqAchat.userId,
+    productId: reqAchat.productId,
+    quantity: reqAchat.quantity
   };
 
-  models.Post.create(post)
+  models.Achat.create(post)
     .then((result) => {
       res.status(201).json({
-        message: 'post created!',
+        message: 'achat created!',
         post: result,
       });
     })
     .catch((err) => {
       res.status(500).json({
-        message: 'cannot created',
+        message: 'cannot create achat',
         err: err,
       });
     });

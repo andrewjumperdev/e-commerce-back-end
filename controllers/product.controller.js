@@ -4,25 +4,26 @@ var fs = require('fs');
 // save on db
 function save(req, res) {
   console.log(req);
-  const reqProduct = JSON.parse(req.body);
+  const reqProduct = req.body;
   // console.log(req);
-  const post = {
-    titre: reqProduct.titre,
-    contenu: reqProduct.contenu,
-    image_url: reqProduct.file.path,
-    userId: reqProduct.userId,
+  const product = {
+    name: reqProduct.name,
+    characteristic: reqProduct.characteristic,
+    price: reqProduct.price,
+    image: reqProduct.image,
+    stock: reqProduct.stock
   };
 
-  models.Post.create(post)
+  models.Product.create(product)
     .then((result) => {
       res.status(201).json({
-        message: 'post created!',
+        message: 'product created!',
         post: result,
       });
     })
     .catch((err) => {
       res.status(500).json({
-        message: 'cannot created',
+        message: 'cannot created product',
         err: err,
       });
     });
@@ -50,66 +51,20 @@ function showOne(req, res) {
 // find all post on db
 
 function showAll(req, res) {
-  let result = models.Post.findAll()
-
-    .then(async (result) => {
-      // let posts = result;
-      let posts = [];
-      for (let index = 0; index < result.length; index++) {
-        const post = result[index];
-        const comments = await models.Comment.findAll({
-          where: {
-            postId: post.id,
-          },
-        });
-
-        // // * get the comment creator names
-        let comments_tmp = [];
-
-        for (let index2 = 0; index2 < comments.length; index2++) {
-          const element = comments[index2];
-          const creators = await models.User.findAll({
-            where: {
-              id: element.userId,
-            },
-          });
-
-          comments_tmp.push({
-            ...element['dataValues'],
-            creator: creators[0].nom + ' ' + creators[0].prenom,
-          });
-        }
-        console.log(comments_tmp);
-
-        // * get likes of the post
-        const likes = await models.Like.findAll({
-          where: {
-            idPost: post.id,
-          },
-        });
-
-        // * get the creator of the post info
-
-        const creators = await models.User.findAll({
-          where: {
-            id: post.userId,
-          },
-        });
-        posts.push({
-          ...result[index]['dataValues'],
-          comments: comments_tmp,
-          likes: likes,
-          creator: creators[0].nom + ' ' + creators[0].prenom,
-        });
-      }
-
-      res.status(200).json(posts);
-    })
-    .catch((err) => {
-      res.status(500).json({
-        message: 'cannot find!',
+  models.Product.findAll().then(result=>{
+    for (let index = 0; index < result.length; index++) {
+     result[index].getAchats().then(achats=>{
+        console.log(achats);
       });
-    });
+      
+    }
+    res.status(200).json(result);
+
+  }).catch(err =>{
+    res.status(500).json(err);
+
+  })
+
 }
 
 // update post

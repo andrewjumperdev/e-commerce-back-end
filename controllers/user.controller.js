@@ -12,14 +12,17 @@ function signUp(req, res) {
       } else {
         bcryptjs.genSalt(10, function (err, salt) {
           bcryptjs.hash(req.body.password, salt, function (err, hash) {
+
             const user = {
+              // id:req.body.id,
+              // id:req.body.id,
               name: req.body.name,
               email: req.body.email,
               password: hash,
+              sold: req.body.sold,
               role: req.body.role,
-              solde: req.body.solde,
             };
-
+            console.log(user);
             models.User.create(user)
               .then((result) => {
                 res.status(201).json({
@@ -29,6 +32,7 @@ function signUp(req, res) {
               .catch((err) => {
                 res.status(500).json({
                   message: 'cannot create the user!',
+                  error:err
                 });
               });
           });
@@ -83,8 +87,41 @@ function login(req, res) {
     });
 }
 
-// delete account
 
+function profile(req,res){
+  models.User.findOne({ where: { id: req.user.userId }}).then(async (user)=>{
+
+  // const achats = await user.getAchats();
+
+  // user['achats']= achats['Achat']['dataValues'];
+
+  // console.log(user.to);
+  res.status(200).json(user);
+
+
+
+  }).catch((err)=>{
+
+    res.status(500).json({ err: err });
+  })
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// delete account
 function destroyAccount(req, res) {
   // console.log(req);
   if (req.body.userId === req.user.userId || req.user.role === 'admin') {
@@ -106,4 +143,5 @@ module.exports = {
   signUp: signUp,
   login: login,
   destroyAccount: destroyAccount,
+  profile: profile,
 };
